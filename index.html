@@ -3,306 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Interactive Link</title>
+    <title>Advanced Slides Access</title>
     <style>
         :root {
-            --primary: #ff00cc;
-            --secondary: #333399;
-            --glow: rgba(255, 0, 204, 0.6);
+            --neon-cyan: #00f3ff;
+            --neon-purple: #9d00ff;
+            --dark-bg: #0a0a0f;
+            --glass-bg: rgba(15, 15, 25, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
             width: 100%;
             height: 100%;
+            background-color: var(--dark-bg);
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1000px;
+            font-family: 'Courier New', Courier, monospace;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .container {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            transform-style: preserve-3d;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px) rotateX(0deg); }
-            50% { transform: translateY(-15px) rotateX(5deg); }
-            100% { transform: translateY(0px) rotateX(0deg); }
-        }
-
-        h1 {
-            color: #ffffff;
-            font-size: 3rem;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5), 0 5px 15px rgba(0,0,0,0.8);
-            margin-bottom: 50px;
-        }
-
-        .btn-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-
-        .btn-complex {
-            position: relative;
-            appearance: none;
-            outline: none;
-            border: none;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            padding: 25px 60px;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 
-                0 15px 25px rgba(0,0,0,0.5),
-                0 20px 0 #11113a,
-                inset 0 5px 10px rgba(255,255,255,0.4);
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-        }
-
-        .btn-complex::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shine 4s infinite;
-        }
-
-        @keyframes shine {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
-        }
-
-        .btn-complex:hover {
-            box-shadow: 
-                0 20px 35px rgba(0,0,0,0.6),
-                0 20px 0 #11113a,
-                0 0 40px var(--glow),
-                inset 0 5px 10px rgba(255,255,255,0.5);
-            transform: translateY(-4px);
-        }
-
-        .btn-complex:active {
-            box-shadow: 
-                0 5px 10px rgba(0,0,0,0.4),
-                0 0px 0 #11113a,
-                0 0 60px var(--glow),
-                inset 0 5px 15px rgba(0,0,0,0.6);
-            transform: translateY(20px);
-        }
-
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.7);
-            transform: scale(0);
-            animation: ripple-anim 0.6s linear;
-            pointer-events: none;
-        }
-
-        @keyframes ripple-anim {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-
-        canvas {
+        /* * ADVANCED CANVAS BACKGROUND
+         * Stays in the background, does not interfere with clicks
+         */
+        #canvas-network {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
             z-index: 1;
+            pointer-events: none; /* Let clicks pass through to the button */
         }
 
-        .loader {
-            display: none;
+        /*
+         * UI WRAPPER
+         * Perfectly centered, completely stationary
+         */
+        .ui-layer {
             position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px; height: 120px;
-            border: 10px solid rgba(255,255,255,0.05);
-            border-top: 10px solid #ff00cc;
-            border-radius: 50%;
-            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-            z-index: 100;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        /*
+         * GLASSMORPHISM DATA PANEL
+         * Completely stationary
+         */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 60px 100px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.1),
+                        inset 0 0 20px rgba(157, 0, 255, 0.05);
+            position: relative;
+            overflow: hidden;
         }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: skewX(-20deg);
+            animation: scanning-laser 6s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes scanning-laser {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .status-text {
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        /* * STATIONARY CYBER BUTTON 
+         * Uses a standard <a> tag so the link works 100% of the time.
+         * Hitbox does NOT move.
+         */
+        .cyber-button {
+            display: inline-block;
+            position: relative;
+            background: transparent;
+            color: #ffffff;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-decoration: none; /* Removes standard link underline */
+            letter-spacing: 8px;
+            padding: 20px 80px;
+            border: 2px solid var(--neon-purple);
+            border-radius: 4px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(157, 0, 255, 0.4),
+                        inset 0 0 15px rgba(157, 0, 255, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        .cyber-button:hover {
+            background: rgba(157, 0, 255, 0.1);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.6),
+                        inset 0 0 20px rgba(0, 243, 255, 0.4);
+            color: #ffffff;
+            text-shadow: 0 0 20px #ffffff;
+            /* Notice: NO transform: translateY or scaling. It stays completely stationary! */
+        }
+
+        .cyber-button:active {
+            background: rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.8),
+                        inset 0 0 30px rgba(0, 243, 255, 0.8);
+        }
+
+        /* Decorative UI elements */
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-cyan);
+            pointer-events: none;
+        }
+        .top-left { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .top-right { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+        .bottom-left { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+        .bottom-right { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        /* Scanline overlay */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 <body>
-    <canvas id="particles"></canvas>
-    <div class="loader" id="loader"></div>
-    <div class="container" id="mainContainer">
-        <h1>System Access</h1>
-        <div class="btn-wrapper">
-            <button class="btn-complex" id="magicButton">Initiate Link</button>
+
+    <canvas id="canvas-network"></canvas>
+    
+    <div class="scanlines"></div>
+
+    <div class="ui-layer">
+        <div class="glass-panel">
+            <div class="corner top-left"></div>
+            <div class="corner top-right"></div>
+            <div class="corner bottom-left"></div>
+            <div class="corner bottom-right"></div>
+            
+            <div class="status-text">System Ready // SECURE CONNECTION</div>
+            
+            <a href="https://docs.google.com/presentation/d/1deNq0sp3cAuR0DAYS6xzVptMsRcpwXVfMCYZfALyW0g/edit?usp=sharing" class="cyber-button">SLIDES</a>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // CONFIGURATION
-        // ==========================================
-        const REDIRECT_URL = "https://docs.google.com/presentation/d/1deNq0sp3cAuR0DAYS6xzVptMsRcpwXVfMCYZfALyW0g/edit?usp=sharing";
-        const DELAY_MS = 1800; 
-
-        // ==========================================
-        // RIPPLE EFFECT GENERATOR
-        // ==========================================
-        const button = document.getElementById('magicButton');
-        button.addEventListener('mousedown', function(e) {
-            const x = e.clientX - e.target.getBoundingClientRect().left;
-            const y = e.clientY - e.target.getBoundingClientRect().top;
-            
-            const ripple = document.createElement('span');
-            ripple.classList.add('ripple');
-            ripple.style.left = `${x}px`;
-            ripple.style.top = `${y}px`;
-            
-            const size = Math.max(this.clientWidth, this.clientHeight);
-            ripple.style.width = ripple.style.height = `${size}px`;
-            
-            this.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
-        });
-
-        // ==========================================
-        // AMBIENT PARTICLE ENGINE
-        // ==========================================
-        const canvas = document.getElementById('particles');
+        const canvas = document.getElementById('canvas-network');
         const ctx = canvas.getContext('2d');
-        let width, height, particleArray;
+        
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        let particles = [];
+        
+        // Settings for advanced visualization
+        const properties = {
+            bgColor: '#0a0a0f',
+            particleColor: 'rgba(0, 243, 255, 0.5)',
+            particleRadius: 3,
+            particleCount: 120,
+            particleMaxVelocity: 0.8,
+            lineLength: 150,
+            particleLife: 6
+        };
 
-        function resize() {
+        window.addEventListener('resize', () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        });
 
         class Particle {
-            constructor(x, y, dx, dy, size, color) {
-                this.x = x;
-                this.y = y;
-                this.dx = dx;
-                this.dy = dy;
-                this.size = size;
-                this.color = color;
-                this.baseSize = size;
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.velocityX = Math.random() * (properties.particleMaxVelocity * 2) - properties.particleMaxVelocity;
+                this.velocityY = Math.random() * (properties.particleMaxVelocity * 2) - properties.particleMaxVelocity;
+                this.life = Math.random() * properties.particleLife * 60;
+                this.radius = Math.random() * properties.particleRadius + 1;
             }
+            
+            position() {
+                // Bounce off walls
+                if ((this.x + this.velocityX > width && this.velocityX > 0) || (this.x + this.velocityX < 0 && this.velocityX < 0)) {
+                    this.velocityX *= -1;
+                }
+                if ((this.y + this.velocityY > height && this.velocityY > 0) || (this.y + this.velocityY < 0 && this.velocityY < 0)) {
+                    this.velocityY *= -1;
+                }
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+            }
+
             draw() {
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = this.color;
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fillStyle = properties.particleColor;
                 ctx.fill();
             }
-            update() {
-                if (this.x + this.size > width || this.x - this.size < 0) this.dx = -this.dx;
-                if (this.y + this.size > height || this.y - this.size < 0) this.dy = -this.dy;
-                this.x += this.dx;
-                this.y += this.dy;
-                
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 120) {
-                    if (this.size < this.baseSize * 4) this.size += 1.5;
-                } else if (this.size > this.baseSize) {
-                    this.size -= 0.2;
+        }
+
+        function buildParticles() {
+            for (let i = 0; i < properties.particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function drawLines() {
+            let x1, y1, x2, y2, length, opacity;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    x1 = particles[i].x;
+                    y1 = particles[i].y;
+                    x2 = particles[j].x;
+                    y2 = particles[j].y;
+                    length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    if (length < properties.lineLength) {
+                        // Calculate opacity based on distance
+                        opacity = 1 - length / properties.lineLength;
+                        
+                        // Add some purple into the mix for the lines
+                        let gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                        gradient.addColorStop(0, `rgba(0, 243, 255, ${opacity})`);
+                        gradient.addColorStop(1, `rgba(157, 0, 255, ${opacity * 0.7})`);
+                        
+                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = gradient;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.closePath();
+                        ctx.stroke();
+                    }
                 }
-                this.draw();
             }
         }
 
-        let mouse = { x: null, y: null };
+        function reDrawBackground() {
+            ctx.fillStyle = properties.bgColor;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function loop() {
+            reDrawBackground();
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].position();
+                particles[i].draw();
+            }
+            drawLines();
+            requestAnimationFrame(loop);
+        }
+
+        function init() {
+            buildParticles();
+            loop();
+        }
+
+        // Add slight mouse interaction with the background particles
+        let mouseX = 0;
+        let mouseY = 0;
         window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            // Push particles slightly away from mouse
+            for (let i = 0; i < particles.length; i++) {
+                let dx = mouseX - particles[i].x;
+                let dy = mouseY - particles[i].y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) {
+                    particles[i].x -= dx * 0.05;
+                    particles[i].y -= dy * 0.05;
+                }
+            }
         });
 
-        function initParticles() {
-            particleArray = [];
-            for (let i = 0; i < 200; i++) {
-                let size = Math.random() * 3 + 1;
-                let x = Math.random() * (innerWidth - size * 2) + size;
-                let y = Math.random() * (innerHeight - size * 2) + size;
-                let dx = (Math.random() - 0.5) * 1.5;
-                let dy = (Math.random() - 0.5) * 1.5;
-                let color = `rgba(255, 0, 204, ${Math.random() * 0.4 + 0.1})`;
-                particleArray.push(new Particle(x, y, dx, dy, size, color));
-            }
-        }
-
-        function animateParticles() {
-            requestAnimationFrame(animateParticles);
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
-            for (let i = 0; i < particleArray.length; i++) {
-                particleArray[i].update();
-            }
-        }
-
-        initParticles();
-        animateParticles();
-
-        // ==========================================
-        // CLICK EXPLOSION & REDIRECT LOGIC
-        // ==========================================
-        button.addEventListener('click', () => {
-            particleArray = [];
-            const rect = button.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-
-            for (let i = 0; i < 400; i++) {
-                let size = Math.random() * 6 + 2;
-                let speedX = (Math.random() - 0.5) * 35;
-                let speedY = (Math.random() - 0.5) * 35;
-                let color = `hsl(${Math.random() * 60 + 280}, 100%, 65%)`; 
-                particleArray.push(new Particle(centerX, centerY, speedX, speedY, size, color));
-            }
-
-            setTimeout(() => {
-                document.getElementById('mainContainer').style.display = 'none';
-                document.getElementById('loader').style.display = 'block';
-            }, 300);
-
-            setTimeout(() => {
-                window.location.href = REDIRECT_URL;
-            }, DELAY_MS);
-        });
+        init();
     </script>
 </body>
 </html>
